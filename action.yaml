@@ -1,0 +1,65 @@
+name: 'Poetry Lock Difference'
+description: 'Shows dependencies differences between two poetry.lock files'
+outputs:
+  diff_present:
+    description: 'Output for GitHub Actions'
+    value: ${{ steps.compare_dependencies.outputs.DIFF_PRESENT }}
+  diff_content:
+    description: 'Output for GitHub Actions'
+    value: ${{ steps.compare_dependencies.outputs.DIFF_CONTENT }}
+
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check Poetry
+      id: check_poetry
+      shell: bash
+      continue-on-error: true
+      run: |
+        poetry --version
+        echo "POETRY_INSTALLED=${?}" >> $GITHUB_OUTPUT
+    - name: Install Poetry
+      id: install_poetry
+      if: steps.check_poetry.outputs.POETRY_INSTALLED != 0
+      uses: abatilo/actions-poetry@v3
+
+    - name: Retrieve poetry.lock
+      shell: bash
+      run: |
+        export BASE_SHA="$(git merge-base "origin/${{ github.head_ref }}" "origin/${{ github.base_ref }}")"
+        export HEAD_SHA="$(git rev-parse "origin/${{ github.head_ref }}")"
+        
+        git show "${BASE_SHA}:poetry.lock" > poetry.lock.base
+        git show "${HEAD_SHA}:poetry.lock" > poetry.lock.head
+
+    - name: Backup current poetry.lock
+      shell: bash
+      run: |
+          cp poetry.lock poetry.lock.bak
+
+    - name: Get dependencies
+      shell: bash
+      run: |
+        mv poetry.lock.base poetry.lock && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "BASE"
+        mv poetry.lock.head poetry.lock && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "HEAD"
+
+    - name: Compare dependencies
+      shell: bash
+      run: |
+        # Allow non-zero exit code
+        set +e
+        diff --suppress-common-lines --side-by-side --width 88 "BASE" "HEAD" > diff.txt
+        echo "DIFF_PRESENT=$?" >> $GITHUB_OUTPUT  # 0 if no differences, 1 if differences
+        echo "DIFF_CONTENT<EOL" >> $GITHUB_OUTPUT
+        cat diff.txt >> $GITHUB_OUTPUT
+        echo "EOL" >> $GITHUB_OUTPUT
+        set -e
+
+    - name: Cleanup
+      shell: bash
+      if: always()
+      run: |
+        rm poetry.lock.base || true
+        rm poetry.lock.head || true
+        mv poetry.lock.bak poetry.lock || true
