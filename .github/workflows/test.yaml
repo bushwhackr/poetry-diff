@@ -5,6 +5,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
     strategy:
       matrix:
         #        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
@@ -44,7 +47,7 @@ jobs:
         with:
           path: tests/update-deps
       - uses: mshick/add-pr-comment@v2
-        if: ${{ matrix.poetry-version == '3.10' }}
+        if: ${{ matrix.python-version == '3.10' && matrix.poetry-version == '1.8' }}
         with:
           message-id: add-deps
           message: |-
@@ -53,7 +56,7 @@ jobs:
             ${{ steps.test-add-deps.outputs.diff_content }}
             ```
       - uses: mshick/add-pr-comment@v2
-        if: ${{ matrix.poetry-version == '3.10' }}
+        if: ${{ matrix.python-version == '3.10' && matrix.poetry-version == '1.8' }}
         with:
           message-id: remove-deps
           message: |-
@@ -62,7 +65,7 @@ jobs:
             ${{ steps.test-remove-deps.outputs.diff_content }}
             ```
       - uses: mshick/add-pr-comment@v2
-        if: ${{ matrix.poetry-version == '3.10' }}
+        if: ${{ matrix.python-version == '3.10' && matrix.poetry-version == '1.8' }}
         with:
           message-id: update-deps
           message: |-
