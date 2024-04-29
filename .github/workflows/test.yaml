@@ -26,7 +26,7 @@ jobs:
         run: |
           cd tests/add-deps && poetry add pandas && cd ../..
           cd tests/remove-deps && poetry remove pandas && cd ../..
-          cd tests/update-deps && poetry add pandas==2.0.0 && cd ../..
+          cd tests/update-deps && poetry add pandas==2.2.0 && cd ../..
       - name: Test add-deps
         id: test-add-deps
         uses: ./
