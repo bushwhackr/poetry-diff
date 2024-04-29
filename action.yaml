@@ -54,8 +54,8 @@ runs:
         diff -s -- poetry.lock.base poetry.lock.head > /dev/null
         echo "DIFF_PRESENT=$?" >> $GITHUB_OUTPUT  # 0 if no differences, 1 if differences
         
-        mv poetry.lock.base poetry.lock && mv pyproject.toml.base pyproject.toml && poetry show | awk '{ printf "from,%s,%s\n", $1, $2 }' | sort > data
-        mv poetry.lock.head poetry.lock && mv pyproject.toml.head pyproject.toml && poetry show | awk '{ printf "to,%s,%s\n", $1, $2 }' | sort >> data
+        mv poetry.lock.base poetry.lock && mv pyproject.toml.base pyproject.toml && poetry show --no-ansi | sed 's|(!)||g' | gawk '{ printf "from,%s,%s\n", $1, $2 }' | sort > data
+        mv poetry.lock.head poetry.lock && mv pyproject.toml.head pyproject.toml && poetry show --no-ansi | sed 's|(!)||g' | gawk '{ printf "to,%s,%s\n", $1, $2 }' | sort >> data
         
         cat data
         
