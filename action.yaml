@@ -54,6 +54,7 @@ runs:
     - name: Compare dependencies
       shell: bash
       working-directory: ${{ inputs.path }}
+      id: compare_dependencies
       run: |
         # Allow non-zero exit code
         set +e
