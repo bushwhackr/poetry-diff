@@ -1,30 +1,33 @@
 name: test
 on:
-  pull_request: {}
+  pull_request: { }
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-#        python-version: [3.8, 3.9, 3.10, 3.11, 3.12]
-#        poetry-version: [1.5, 1.6, 1.7, 1.8, null]
-        python-version: [3.10]
-        poetry-version: [1.8]
+        #        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        #        poetry-version: ["1.5", "1.6", "1.7", "1.8", "null"]
+        python-version: [ "3.10" ]
+        poetry-version: [ "1.8" ]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
         with:
-          python-version: matrix.python-version
+          fetch-depth: 0
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
       - uses: abatilo/actions-poetry@v3
         if: matrix.poetry-version != 'null'
         with:
-          poetry-version: matrix.poetry-version
-      - name: Create test plans
+          poetry-version: ${{ matrix.poetry-version }}
+      - name: Create test changes
         run: |
-          { cd tests/add-deps && poetry add pandas }
-          { cd tests/remove-deps && poetry remove pandas }
-          { cd tests/update-deps && poetry add pandas==2.0.0 }
+          cd tests/add-deps && poetry add pandas && cd ../..
+          cd tests/remove-deps && poetry remove pandas && cd ../..
+          cd tests/update-deps && poetry add pandas==2.0.0 && cd ../..
       - name: Test add-deps
         id: test-add-deps
         uses: ./
