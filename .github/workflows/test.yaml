@@ -11,7 +11,6 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-        poetry-version: ["1.8.2", "null"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,9 +20,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: abatilo/actions-poetry@v3
-        if: ${{ matrix.poetry-version == 'null' }}
         with:
-          poetry-version: ${{ matrix.poetry-version }}
+          poetry-version: 1.8.2
       - name: Create test changes
         run: |
           cd tests/add-deps && poetry add pandas && cd ../..
@@ -44,24 +42,36 @@ jobs:
         uses: ./
         with:
           path: tests/update-deps
+      - name: Test no-deps
+        id: test-no-deps
+        uses: ./
+        with:
+          path: tests/no-deps
       - uses: mshick/add-pr-comment@v2
-        if: ${{ matrix.python-version == '3.10' && matrix.poetry-version == '1.8' }}
+        if: ${{ matrix.python-version == '3.10' }}
         with:
           message-id: add-deps
           message: |-
             ### Add
             ${{ steps.test-add-deps.outputs.diff_content }}
       - uses: mshick/add-pr-comment@v2
-        if: ${{ matrix.python-version == '3.10' && matrix.poetry-version == '1.8' }}
+        if: ${{ matrix.python-version == '3.10'}}
         with:
           message-id: remove-deps
           message: |-
             ### Remove
             ${{ steps.test-remove-deps.outputs.diff_content }}
       - uses: mshick/add-pr-comment@v2
-        if: ${{ matrix.python-version == '3.10' && matrix.poetry-version == '1.8' }}
+        if: ${{ matrix.python-version == '3.10'}}
         with:
           message-id: update-deps
           message: |-
             ### Update
             ${{ steps.test-update-deps.outputs.diff_content }}
+      - uses: mshick/add-pr-comment@v2
+        if: ${{ matrix.python-version == '3.10' && steps.test-no-deps.outputs.diff_present == '1' }}
+        with:
+          message-id: no-deps
+          message: |-
+            ### Update
+            ${{ steps.test-no-deps.outputs.diff_content }}
