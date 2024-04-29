@@ -59,7 +59,7 @@ runs:
         set +e
         diff --suppress-common-lines --side-by-side --width 88 "BASE" "HEAD" > diff.txt
         echo "DIFF_PRESENT=$?" >> $GITHUB_OUTPUT  # 0 if no differences, 1 if differences
-        echo "DIFF_CONTENT<EOL" >> $GITHUB_OUTPUT
+        echo "DIFF_CONTENT<<EOL" >> $GITHUB_OUTPUT
         cat diff.txt >> $GITHUB_OUTPUT
         echo "EOL" >> $GITHUB_OUTPUT
         set -e
