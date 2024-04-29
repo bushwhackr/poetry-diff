@@ -10,10 +10,8 @@ jobs:
       contents: read
     strategy:
       matrix:
-        #        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-        #        poetry-version: ["1.5", "1.6", "1.7", "1.8", "null"]
-        python-version: [ '3.10' ]
-        poetry-version: [ '1.8' ]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        poetry-version: ["1.8.2", "null"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,7 +21,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: abatilo/actions-poetry@v3
-        if: ${{ matrix.poetry-version != 'null' }}
+        if: ${{ matrix.poetry-version == 'null' }}
         with:
           poetry-version: ${{ matrix.poetry-version }}
       - name: Create test changes
