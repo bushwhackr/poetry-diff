@@ -33,20 +33,22 @@ runs:
       shell: bash
       run: |
         export BASE_SHA="$(git merge-base "origin/${{ github.head_ref }}" "origin/${{ github.base_ref }}")"
-        git show "${BASE_SHA}:${{ inputs.path }}/poetry.lock" > ${{ inputs.path }}/poetry.lock.base
+        git show "${BASE_SHA}:${{ inputs.path }}/poetry.lock" > "${{ inputs.path }}/poetry.lock.base"
+        git show "${BASE_SHA}:${{ inputs.path }}/pyproject.toml" > "${{ inputs.path }}/pyproject.toml.base"
 
     - name: Backup current poetry.lock
       shell: bash
       working-directory: ${{ inputs.path }}
       run: |
-          cp poetry.lock poetry.lock.head
+        cp poetry.lock poetry.lock.head
+        cp pyproject.toml pyproject.toml.head  
 
     - name: Get dependencies
       shell: bash
       working-directory: ${{ inputs.path }}
       run: |
-        mv poetry.lock.base poetry.lock && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "BASE"
-        mv poetry.lock.head poetry.lock && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "HEAD"
+        mv poetry.lock.base poetry.lock && mv pyroject.toml.base pyproject.toml && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "BASE"
+        mv poetry.lock.head poetry.lock && mv pyroject.toml.head pyproject.toml && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "HEAD"
 
     - name: Compare dependencies
       shell: bash
@@ -67,5 +69,7 @@ runs:
       if: always()
       run: |
         rm poetry.lock.base || true
+        rm pyproject.toml.base || true
         mv poetry.lock.head poetry.lock || true
+        mv pyproject.toml.head pyproject.toml || true
         
