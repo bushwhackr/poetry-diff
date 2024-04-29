@@ -33,6 +33,7 @@ runs:
       shell: bash
       run: |
         export BASE_SHA="$(git merge-base "origin/${{ github.head_ref }}" "origin/${{ github.base_ref }}")"
+        
         git show "${BASE_SHA}:${{ inputs.path }}/poetry.lock" > "${{ inputs.path }}/poetry.lock.base"
         git show "${BASE_SHA}:${{ inputs.path }}/pyproject.toml" > "${{ inputs.path }}/pyproject.toml.base"
 
@@ -47,8 +48,8 @@ runs:
       shell: bash
       working-directory: ${{ inputs.path }}
       run: |
-        mv poetry.lock.base poetry.lock && mv pyroject.toml.base pyproject.toml && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "BASE"
-        mv poetry.lock.head poetry.lock && mv pyroject.toml.head pyproject.toml && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "HEAD"
+        mv poetry.lock.base poetry.lock && mv pyproject.toml.base pyproject.toml && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "BASE"
+        mv poetry.lock.head poetry.lock && mv pyproject.toml.head pyproject.toml && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "HEAD"
 
     - name: Compare dependencies
       shell: bash
