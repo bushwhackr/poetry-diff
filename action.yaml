@@ -33,24 +33,24 @@ runs:
       shell: bash
       run: |
         export BASE_SHA="$(git merge-base "origin/${{ github.head_ref }}" "origin/${{ github.base_ref }}")"
-        export HEAD_SHA="$(git rev-parse "origin/${{ github.head_ref }}")"
-        
-        git show "${BASE_SHA}:poetry.lock" > poetry.lock.base
-        git show "${HEAD_SHA}:poetry.lock" > poetry.lock.head
+        git show "${BASE_SHA}:${{ inputs.path }}/poetry.lock" > ${{ inputs.path }}/poetry.lock.base
 
     - name: Backup current poetry.lock
       shell: bash
+      working-directory: ${{ inputs.path }}
       run: |
-          cp poetry.lock poetry.lock.bak
+          cp poetry.lock poetry.lock.head
 
     - name: Get dependencies
       shell: bash
+      working-directory: ${{ inputs.path }}
       run: |
         mv poetry.lock.base poetry.lock && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "BASE"
         mv poetry.lock.head poetry.lock && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "HEAD"
 
     - name: Compare dependencies
       shell: bash
+      working-directory: ${{ inputs.path }}
       run: |
         # Allow non-zero exit code
         set +e
@@ -63,8 +63,9 @@ runs:
 
     - name: Cleanup
       shell: bash
+      working-directory: ${{ inputs.path }}
       if: always()
       run: |
         rm poetry.lock.base || true
-        rm poetry.lock.head || true
-        mv poetry.lock.bak poetry.lock || true
+        mv poetry.lock.head poetry.lock || true
+        
