@@ -42,14 +42,7 @@ runs:
       working-directory: ${{ inputs.path }}
       run: |
         cp poetry.lock poetry.lock.head
-        cp pyproject.toml pyproject.toml.head  
-
-    - name: Get dependencies
-      shell: bash
-      working-directory: ${{ inputs.path }}
-      run: |
-        mv poetry.lock.base poetry.lock && mv pyproject.toml.base pyproject.toml && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "BASE"
-        mv poetry.lock.head poetry.lock && mv pyproject.toml.head pyproject.toml && poetry show | awk '{ printf "%s: %s\n", $1, $2 }' | sort > "HEAD"
+        cp pyproject.toml pyproject.toml.head        
 
     - name: Compare dependencies
       shell: bash
@@ -58,10 +51,33 @@ runs:
       run: |
         # Allow non-zero exit code
         set +e
-        diff --suppress-common-lines --side-by-side --width 88 "BASE" "HEAD" > diff.txt
+        diff -s -- poetry.lock.base poetry.lock.head > /dev/null
         echo "DIFF_PRESENT=$?" >> $GITHUB_OUTPUT  # 0 if no differences, 1 if differences
+        
+        mv poetry.lock.base poetry.lock && mv pyproject.toml.base pyproject.toml && poetry show | awk '{ printf "from,%s,%s\n", $1, $2 }' | sort > data
+        mv poetry.lock.head poetry.lock && mv pyproject.toml.head pyproject.toml && poetry show | awk '{ printf "to,%s,%s\n", $1, $2 }' | sort >> data
+        
         echo "DIFF_CONTENT<<EOL" >> $GITHUB_OUTPUT
-        cat diff.txt >> $GITHUB_OUTPUT
+        awk -F, '
+        {
+          if ($2 in arr == 0) {
+            arr[$2, 1] = "null"
+            arr[$2, 2] = "null"
+          }
+        
+          if ($1 == "from") {
+            arr[$2, 1] = $3
+          } else {
+            arr[$2, 2] = $3
+          }
+        }
+        END {
+          printf "| %-40s | %-40s | %-40s |\n", "Package", "Base", "Head"
+          printf "| %-40s | %-40s | %-40s |\n", "----------------------------------------", "----------------------------------------", "----------------------------------------"
+          for (i in arr) {
+              printf "| %-40s | %-40s | %-40s |\n", i, arr[i, 1], arr[i, 2]
+          }
+        }' data >> $GITHUB_OUTPUT
         echo "EOL" >> $GITHUB_OUTPUT
         set -e
 
