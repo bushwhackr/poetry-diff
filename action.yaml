@@ -1,5 +1,10 @@
 name: 'Poetry Lock Difference'
 description: 'Shows dependencies differences between two poetry.lock files'
+inputs:
+  path:
+    description: 'Directory where the poetry.lock files are located'
+    required: false
+    default: '.'
 outputs:
   diff_present:
     description: 'Output for GitHub Actions'
