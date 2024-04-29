@@ -9,8 +9,8 @@ jobs:
       matrix:
         #        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
         #        poetry-version: ["1.5", "1.6", "1.7", "1.8", "null"]
-        python-version: [ "3.10" ]
-        poetry-version: [ "1.8" ]
+        python-version: [ '3.10' ]
+        poetry-version: [ '1.8' ]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,31 +20,31 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: abatilo/actions-poetry@v3
-        if: matrix.poetry-version != 'null'
+        if: ${{ matrix.poetry-version != 'null' }}
         with:
           poetry-version: ${{ matrix.poetry-version }}
       - name: Create test changes
         run: |
           cd tests/add-deps && poetry add pandas && cd ../..
-#          cd tests/remove-deps && poetry remove pandas && cd ../..
-#          cd tests/update-deps && poetry add pandas==2.0.0 && cd ../..
+          cd tests/remove-deps && poetry remove pandas && cd ../..
+          cd tests/update-deps && poetry add pandas==2.0.0 && cd ../..
       - name: Test add-deps
         id: test-add-deps
         uses: ./
         with:
           path: tests/add-deps
-#      - name: Test remove-deps
-#        id: test-remove-deps
-#        uses: ./
-#        with:
-#          path: tests/remove-deps
-#      - name: Test update-deps
-#        id: test-update-deps
-#        uses: ./
-#        with:
-#          path: tests/update-deps
+      - name: Test remove-deps
+        id: test-remove-deps
+        uses: ./
+        with:
+          path: tests/remove-deps
+      - name: Test update-deps
+        id: test-update-deps
+        uses: ./
+        with:
+          path: tests/update-deps
       - uses: mshick/add-pr-comment@v2
-        if: matrix.poetry-version == '3.10' && matrix.poetry-version == '1.8'
+        if: ${{ matrix.poetry-version == '3.10' }}
         with:
           message-id: add-deps
           message: |-
@@ -52,21 +52,21 @@ jobs:
             ```diff
             ${{ steps.test-add-deps.outputs.diff_content }}
             ```
-#      - uses: mshick/add-pr-comment@v2
-#        if: matrix.poetry-version == '3.10' && matrix.poetry-version == '1.8'
-#        with:
-#          message-id: remove-deps
-#          message: |-
-#            Remove deps result
-#            ```diff
-#            ${{ steps.test-remove-deps.outputs.diff_content }}
-#            ```
-#      - uses: mshick/add-pr-comment@v2
-#        if: matrix.poetry-version == '3.10' && matrix.poetry-version == '1.8'
-#        with:
-#          message-id: update-deps
-#          message: |-
-#            Update deps result
-#            ```diff
-#            ${{ steps.test-update-deps.outputs.diff_content }}
-#            ```
+      - uses: mshick/add-pr-comment@v2
+        if: ${{ matrix.poetry-version == '3.10' }}
+        with:
+          message-id: remove-deps
+          message: |-
+            Remove deps result
+            ```diff
+            ${{ steps.test-remove-deps.outputs.diff_content }}
+            ```
+      - uses: mshick/add-pr-comment@v2
+        if: ${{ matrix.poetry-version == '3.10' }}
+        with:
+          message-id: update-deps
+          message: |-
+            Update deps result
+            ```diff
+            ${{ steps.test-update-deps.outputs.diff_content }}
+            ```

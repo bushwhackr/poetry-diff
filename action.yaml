@@ -26,7 +26,7 @@ runs:
         echo "POETRY_INSTALLED=${?}" >> $GITHUB_OUTPUT
     - name: Install Poetry
       id: install_poetry
-      if: steps.check_poetry.outputs.POETRY_INSTALLED != 0
+      if: ${{ steps.check_poetry.outputs.POETRY_INSTALLED != 0 }}
       uses: abatilo/actions-poetry@v3
 
     - name: Retrieve poetry.lock
