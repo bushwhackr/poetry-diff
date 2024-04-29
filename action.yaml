@@ -57,6 +57,8 @@ runs:
         mv poetry.lock.base poetry.lock && mv pyproject.toml.base pyproject.toml && poetry show | awk '{ printf "from,%s,%s\n", $1, $2 }' | sort > data
         mv poetry.lock.head poetry.lock && mv pyproject.toml.head pyproject.toml && poetry show | awk '{ printf "to,%s,%s\n", $1, $2 }' | sort >> data
         
+        cat data
+        
         echo "DIFF_CONTENT<<EOL" >> $GITHUB_OUTPUT
         gawk -F, '
         {
