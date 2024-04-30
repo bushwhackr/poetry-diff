@@ -1,5 +1,8 @@
 name: 'Poetry Lock Difference'
 description: 'Shows dependencies differences between two poetry.lock files'
+branding:
+  icon: box
+  color: blue
 inputs:
   path:
     description: 'Directory where the poetry.lock files are located'
