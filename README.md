@@ -73,10 +73,10 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.10
+          python-version: "3.10"
       - uses: abatilo/actions-poetry@v3
         with:
-          poetry-version: 1.8.2
+          poetry-version: "1.8.2"
       - uses: bushwhackr/poetry-diff@v1
         id: poetry-diff
       - uses: mshick/add-pr-comment@v2
