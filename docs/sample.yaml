@@ -1,0 +1,27 @@
+name: Dependency Changes
+on:
+  pull_request: {}
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.10
+      - uses: abatilo/actions-poetry@v3
+        with:
+          poetry-version: 1.8.2
+      - uses: bushwhackr/poetry-diff
+        id: poetry-diff
+      - uses: mshick/add-pr-comment@v2
+        if: ${{ steps.poetry-diff.outputs.diff_present != '0' }}
+        with:
+          message: |-
+            ${{ steps.poetry-diff.outputs.diff_content }}

@@ -51,8 +51,8 @@ runs:
         gawk -F, '
         {
           if ($2 in arr == 0) {
-            arr[$2][1] = "<null>"
-            arr[$2][2] = "<null>"
+            arr[$2][1] = "(null)"
+            arr[$2][2] = "(null)"
           }
         
           if ($1 == "from") {
